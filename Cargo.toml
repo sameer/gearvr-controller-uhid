@@ -1,0 +1,12 @@
+[package]
+name = "gearvr-controller-hid"
+version = "0.1.0"
+authors = ["Sameer Puri <sameer@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+blurz = "0.4"
+tokio-linux-uhid = { version = "0.4", git = "https://github.com/danstiner/rust-u2f/" }
+tokio-core = "0.1"
