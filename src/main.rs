@@ -26,7 +26,6 @@ fn main() {
     loop {
         let value = controller.notify.get_value().unwrap();
         let packet = Packet::from(value.as_slice());
-        // println!("{:?}", &packet);
         if packet.axis == Axis::default() {
             last_axis = None;
         } else if let Some(last) = last_axis {
