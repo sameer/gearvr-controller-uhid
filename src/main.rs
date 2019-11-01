@@ -1,4 +1,5 @@
 use blurz::BluetoothSession;
+use tokio_linux_uhid::{UHIDDevice, MiscDriver};
 
 mod blue;
 mod decode;
@@ -20,7 +21,7 @@ fn main() {
     controller.notify.start_notify().unwrap();
 
     let params = params(controller.device.get_name().unwrap());
-    let mut uhid = tokio_linux_uhid::UHIDDevice::create(params, None).unwrap();
+    let mut uhid: UHIDDevice<MiscDriver> = UHIDDevice::create(params, None).unwrap();
 
     let mut last_axis: Option<Axis> = None;
     loop {

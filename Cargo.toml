@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 blurz = "0.4"
-tokio-linux-uhid = { version = "0.4", git = "https://github.com/danstiner/rust-u2f/" }
+tokio-linux-uhid = { version = "0.4", git = "https://github.com/sameer/rust-u2f/" }
 tokio-core = "0.1"
