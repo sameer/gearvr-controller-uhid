@@ -10,6 +10,8 @@ In the words of Samsung:
 
 ![Picture of controller taken with my phone](./gear.jpg)
 
+![GIF of driver in action](./gear.gif)
+
 ### Controller Capabilities
 
 * Touchpad with single-click button

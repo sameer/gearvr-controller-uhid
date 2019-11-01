@@ -14,7 +14,7 @@ fn main() {
     let controller = controllers.iter().nth(0).unwrap();
     controller
         .writer
-        .write_value(Command::Off.value().to_vec(), None)
+        .write_value(Command::Sensor.value().to_vec(), None)
         .unwrap();
     // let (fd, count) = notify.acquire_notify().unwrap();
     controller.notify.start_notify().unwrap();
