@@ -12,7 +12,10 @@ fn main() {
     let session = BluetoothSession::create_session(None).unwrap();
     let controllers = Controller::new_vec(&session);
     let controller = controllers.iter().nth(0).unwrap();
-    controller.writer.write_value(Command::Off.value().to_vec(), None).unwrap();
+    controller
+        .writer
+        .write_value(Command::Off.value().to_vec(), None)
+        .unwrap();
     // let (fd, count) = notify.acquire_notify().unwrap();
     controller.notify.start_notify().unwrap();
 
