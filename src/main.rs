@@ -1,5 +1,7 @@
+use std::convert::TryFrom;
+
 use blurz::BluetoothSession;
-use tokio_linux_uhid::{UHIDDevice, MiscDriver};
+use tokio_linux_uhid::{MiscDriver, UHIDDevice};
 
 mod blue;
 mod decode;
@@ -11,21 +13,20 @@ use hid::*;
 
 fn main() {
     let session = BluetoothSession::create_session(None).unwrap();
-    let controllers = Controller::new_vec(&session);
-    let controller = controllers.iter().nth(0).unwrap();
-    controller
+    let blue_controllers = BlueController::new_vec(&session);
+    let blue_controller = blue_controllers.iter().nth(0).unwrap();
+    blue_controller
         .writer
         .write_value(Command::Sensor.value().to_vec(), None)
         .unwrap();
     // let (fd, count) = notify.acquire_notify().unwrap();
-    controller.notify.start_notify().unwrap();
+    blue_controller.notify.start_notify().unwrap();
 
-    let params = params(controller.device.get_name().unwrap());
-    let mut uhid: UHIDDevice<MiscDriver> = UHIDDevice::create(params, None).unwrap();
+    let mut hid_controller = HIDController::try_from(blue_controller.device.get_name().unwrap()).unwrap();
 
     let mut last_axis: Option<Axis> = None;
     loop {
-        let value = controller.notify.get_value().unwrap();
+        let value = blue_controller.notify.get_value().unwrap();
         let packet = Packet::from(value.as_slice());
         if packet.axis == Axis::default() {
             last_axis = None;
@@ -34,7 +35,7 @@ fn main() {
             let delta_hor = delta.x as u8;
             let delta_ver = delta.y as u8;
             let data = [1, 0, delta_hor, delta_ver, 0];
-            uhid.send_input(&data).unwrap();
+            hid_controller.device.send_input(&data).unwrap();
             last_axis = Some(packet.axis);
         } else {
             last_axis = Some(packet.axis);

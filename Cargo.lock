@@ -788,7 +788,7 @@ dependencies = [
 [[package]]
 name = "tokio-linux-uhid"
 version = "0.4.0"
-source = "git+https://github.com/sameer/rust-u2f/#554ce738b876990f2b95f7b3a41f44d359534d05"
+source = "git+https://github.com/sameer/rust-u2f/#87e1ffcaa80fd7dc44ae160473ae91187b9845e7"
 dependencies = [
  "bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",

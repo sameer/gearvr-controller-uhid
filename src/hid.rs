@@ -1,10 +1,41 @@
 use std::fs::File;
+use std::io;
+use std::convert::TryFrom;
+
 use tokio_core::reactor::Handle;
-use tokio_linux_uhid::{Bus, CreateParams, UHIDDevice};
+use tokio_linux_uhid::{Bus, CreateParams, MiscDriver, UHIDDevice};
+
+pub struct HIDController {
+    pub device: UHIDDevice<MiscDriver>
+}
+
+impl TryFrom<String> for HIDController {
+    type Error = io::Error;
+    fn try_from(name: String) -> io::Result<Self> {
+        let params = CreateParams {
+            name,
+            phys: String::default(),
+            uniq: String::default(),
+            bus: Bus::USB,
+            vendor: 0x15d9,
+            product: 0x0a37,
+            version: 0,
+            country: 0,
+            data: RDESC.to_vec(),
+        };
+        Ok(Self{ device: UHIDDevice::create(params, None)?})
+    }
+}
+
+impl Drop for HIDController {
+    fn drop(&mut self) {
+        self.device.destroy();
+    }
+}
 
 // Formulate a 'HID Report Descriptor' to describe the function of your device.
 // This tells the kernel how to interpret the HID packets you send to the device.
-pub const RDESC: [u8; 85] = [
+const RDESC: [u8; 85] = [
     0x05, 0x01, /* USAGE_PAGE (Generic Desktop) */
     0x09, 0x02, /* USAGE (Mouse) */
     0xa1, 0x01, /* COLLECTION (Application) */
@@ -50,17 +81,3 @@ pub const RDESC: [u8; 85] = [
     0x91, 0x01, /* Output (Cnst,Var,Abs) */
     0xc0, /* END_COLLECTION */
 ];
-
-pub fn params(name: String) -> CreateParams {
-    CreateParams {
-        name,
-        phys: String::default(),
-        uniq: String::default(),
-        bus: Bus::USB,
-        vendor: 0x15d9,
-        product: 0x0a37,
-        version: 0,
-        country: 0,
-        data: RDESC.to_vec(),
-    }
-}

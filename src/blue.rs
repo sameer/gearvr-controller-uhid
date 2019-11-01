@@ -7,14 +7,14 @@ const SERVICE_UUID: &str = "4f63756c-7573-2054-6872-65656d6f7465";
 const CHAR_WRITE_UUID: &str = "c8c51726-81bc-483b-a052-f7a14ea3d282";
 const CHAR_NOTIFY_UUID: &str = "c8c51726-81bc-483b-a052-f7a14ea3d281";
 
-pub struct Controller<'a> {
+pub struct BlueController<'a> {
     pub device: BluetoothDevice<'a>,
     pub writer: BluetoothGATTCharacteristic<'a>,
     pub notify: BluetoothGATTCharacteristic<'a>,
 }
 
-impl<'a> Controller<'a> {
-    pub fn new_vec(session: &'a BluetoothSession) -> Vec<Controller<'a>> {
+impl<'a> BlueController<'a> {
+    pub fn new_vec(session: &'a BluetoothSession) -> Vec<BlueController<'a>> {
         let adapter = BluetoothAdapter::init(session).unwrap();
         let devices = adapter.get_device_list().unwrap();
         devices
@@ -48,7 +48,7 @@ impl<'a> Controller<'a> {
                     .iter()
                     .find(|c| c.get_uuid().unwrap() == CHAR_NOTIFY_UUID);
                 if let (Some(writer), Some(notify)) = (writer, notify) {
-                    Some(Controller {
+                    Some(BlueController {
                         device: device,
                         writer: writer.clone(),
                         notify: notify.clone(),
