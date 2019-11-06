@@ -1,7 +1,7 @@
 use std::convert::TryFrom;
 
 use blurz::BluetoothSession;
-use tokio_linux_uhid::{MiscDriver, UHIDDevice};
+use arrayvec::ArrayVec;
 
 mod blue;
 mod decode;
@@ -34,8 +34,10 @@ fn main() {
             let delta = packet.axis - last;
             let delta_hor = delta.x as u8;
             let delta_ver = delta.y as u8;
-            let data = [1, 0, delta_hor, delta_ver, 0];
-            hid_controller.device.send_input(&data).unwrap();
+            let mut data = ArrayVec::new();
+            data.try_extend_from_slice(&[1, 0, delta_hor, delta_ver, 0]).unwrap();
+            
+            hid_controller.device.send_input(data).unwrap();
             last_axis = Some(packet.axis);
         } else {
             last_axis = Some(packet.axis);

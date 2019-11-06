@@ -1,35 +1,39 @@
+use std::convert::TryFrom;
 use std::fs::File;
 use std::io;
-use std::convert::TryFrom;
 
-use tokio_core::reactor::Handle;
-use tokio_linux_uhid::{Bus, CreateParams, MiscDriver, UHIDDevice};
+use arrayvec::{ArrayString, ArrayVec};
+use uhid_fs::{Bus, CreateParams, UHIDDevice};
 
 pub struct HIDController {
-    pub device: UHIDDevice<MiscDriver>
+    pub device: UHIDDevice<File>,
 }
 
 impl TryFrom<String> for HIDController {
     type Error = io::Error;
     fn try_from(name: String) -> io::Result<Self> {
+        let mut rd_data = ArrayVec::new();
+        rd_data.try_extend_from_slice(&RDESC).unwrap();
         let params = CreateParams {
-            name,
-            phys: String::default(),
-            uniq: String::default(),
+            name: ArrayString::from(&name).unwrap(),
+            phys: ArrayString::new(),
+            uniq: ArrayString::new(),
             bus: Bus::USB,
             vendor: 0x15d9,
             product: 0x0a37,
             version: 0,
             country: 0,
-            data: RDESC.to_vec(),
+            rd_data,
         };
-        Ok(Self{ device: UHIDDevice::create(params, None)?})
+        Ok(Self {
+            device: UHIDDevice::try_new(params)?,
+        })
     }
 }
 
 impl Drop for HIDController {
     fn drop(&mut self) {
-        self.device.destroy();
+        self.device.destroy().unwrap();
     }
 }
 
