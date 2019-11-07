@@ -1,4 +1,4 @@
-use std::ops::Sub;
+use std::ops::{Sub, AddAssign};
 
 const GYRO_FACTOR: f64 = 1E-4;
 const ACCEL_FACTOR: f64 = 1E-5;
@@ -71,14 +71,24 @@ impl Default for Axis {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct Buttons {
-    trigger: bool,
-    home: bool,
-    back: bool,
-    touchpad: bool,
-    volume_up: bool,
-    volume_down: bool,
+    pub trigger: bool,
+    pub home: bool,
+    pub back: bool,
+    pub touchpad: bool,
+    pub volume_up: bool,
+    pub volume_down: bool,
+}
+
+impl Into<u8> for Buttons {
+    fn into(self) -> u8 {
+        let mut acc = self.touchpad as u8;
+        if self.trigger {
+            acc |= 0x2;
+        }
+        acc
+    }
 }
 
 impl From<u8> for Buttons {
@@ -94,7 +104,7 @@ impl From<u8> for Buttons {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Packet {
     pub axis: Axis,
     pub timestamp: i32,
