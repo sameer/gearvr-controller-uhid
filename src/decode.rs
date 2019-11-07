@@ -39,6 +39,10 @@ pub struct Axis {
     pub y: i16,
 }
 
+impl Axis {
+    pub const ZERO: Self = Self{ x: 0, y: 0};
+}
+
 impl From<[u8; 3]> for Axis {
     fn from(value: [u8; 3]) -> Self {
         let a = value[0] as u16;
@@ -63,7 +67,7 @@ impl Sub for Axis {
 
 impl Default for Axis {
     fn default() -> Self {
-        Self { x: 0, y: 0 }
+        Self::ZERO
     }
 }
 
