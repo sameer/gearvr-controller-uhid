@@ -22,34 +22,35 @@ fn main() {
 
     let mut last_opt: Option<Packet> = None;
     loop {
+        let mut any = false;
         blue_controller.poll_values().for_each(|value| {
             let packet = Packet::from(&*value);
-            let mut data = ArrayVec::new();
-            if packet.axis == Axis::ZERO {
-                data.try_extend_from_slice(&[
-                    packet.buttons.into(),
-                    0,
-                    0,
-                    0,
-                ])
-                .unwrap();
-                last_opt = None;
-            } else {
-                if let Some(last) = last_opt.clone() {
-                    let delta = packet.axis - last.axis;
-                    let delta_hor = delta.x as i8 as u8;
-                    let delta_ver = delta.y as i8 as u8;
-                    data.try_extend_from_slice(&[
-                        packet.buttons.into(),
-                        delta_hor,
-                        delta_ver,
-                        0,
-                    ])
+            if let Some(last) = last_opt.clone() {
+                let delta = if packet.axis == Axis::ZERO || last.axis == Axis::ZERO {
+                    Axis::ZERO
+                } else {
+                    packet.axis - last.axis
+                };
+                let delta_hor = delta.x as i8 as u8;
+                let delta_ver = delta.y as i8 as u8;
+                let wheel = if packet.buttons.volume_up {
+                    1 as i8
+                } else if packet.buttons.volume_down {
+                    -1 as i8
+                } else {
+                    0 as i8
+                } as u8;
+
+                let mut data = ArrayVec::new();
+                data.try_extend_from_slice(&[packet.buttons.into(), delta_hor, delta_ver, wheel])
                     .unwrap();
-                    hid_controller.device.send_input(data).unwrap();
-                }
-                last_opt = Some(packet);
+                hid_controller.device.send_input(data).unwrap();
             }
+            last_opt = Some(packet);
+            any = true;
         });
+        if !any {
+            last_opt = None;
+        }
     }
 }
